@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: createTenantTestTable
+      author: samrat
+      changes:
+        - createTable:
+            tableName: tbl_test_tenant
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(250)
+                  constraints:
+                    nullable: false

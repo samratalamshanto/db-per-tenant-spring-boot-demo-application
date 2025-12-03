@@ -20,6 +20,7 @@ public class Tenant {
     private Long id;
     private String tenantKey;
     private String dbName;
+    private String schemaName;
     private String dbUserName;
     private String dbHashedPassword;
 
