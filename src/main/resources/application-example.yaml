@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ecommerce
+    name: multi-tenant
 
   jpa:
     database: POSTGRESQL
@@ -11,9 +11,22 @@ spring:
   datasource:
     platform: postgres
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://testd.com:21941/test?ssl=require
+    url: jdbc:postgresql://testDb/multi_tenant_master_db_final?ssl=require
     username: test
     password: !test
-#
+
 #  liquibase:
+#    enabled: true
 #    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+
+server:
+  port: 8090
+
+
+application:
+  tenant:
+    db:
+      host: test
+      port: 12345
+      driver: org.postgresql.Driver
