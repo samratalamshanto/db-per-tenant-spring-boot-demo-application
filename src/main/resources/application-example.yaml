@@ -30,3 +30,9 @@ application:
       host: test
       port: 12345
       driver: org.postgresql.Driver
+
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
