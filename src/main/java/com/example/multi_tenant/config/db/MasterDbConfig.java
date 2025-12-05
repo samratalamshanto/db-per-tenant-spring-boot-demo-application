@@ -1,7 +1,9 @@
 package com.example.multi_tenant.config.db;
 
 import com.example.multi_tenant.config.CamelCaseToSnakeCaseStrategy;
+import com.example.multi_tenant.config.properties.MasterDbProperties;
 import jakarta.persistence.EntityManagerFactory;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -24,15 +26,17 @@ import java.util.Map;
         entityManagerFactoryRef = "masterEntityManagerFactory",
         transactionManagerRef = "masterTransactionManager"
 )
+@RequiredArgsConstructor
 public class MasterDbConfig {
+    private final MasterDbProperties masterDbProps;
 
     @Bean
     @Primary
     public DataSource masterDataSource() {
         return DataSourceBuilder.create()
-                .url("jdbc:postgresql://localhost:5432/multi_tenant_master_db_final")
-                .username("admin")
-                .password("admin")
+                .url(masterDbProps.getUrl())
+                .username(masterDbProps.getUsername())
+                .password(masterDbProps.getPassword())
                 .build();
     }
 
@@ -42,9 +46,10 @@ public class MasterDbConfig {
 
         Map<String, Object> jpaProperties = new HashMap<>();
 
-        // camelCase to Db snakeCase issue
         jpaProperties.put("hibernate.show_sql", true);
         jpaProperties.put("hibernate.format_sql", true);
+
+        // camelCase to Db snakeCase issue
         jpaProperties.put("hibernate.physical_naming_strategy", new CamelCaseToSnakeCaseStrategy());
         jpaProperties.put("hibernate.implicit_naming_strategy", new ImplicitNamingStrategyJpaCompliantImpl());
 
@@ -59,7 +64,8 @@ public class MasterDbConfig {
     @Bean
     @Primary
     public PlatformTransactionManager masterTransactionManager(
-            @Qualifier("masterEntityManagerFactory") EntityManagerFactory emf) {
+            @Qualifier("masterEntityManagerFactory") EntityManagerFactory emf
+    ) {
         return new JpaTransactionManager(emf);
     }
 }

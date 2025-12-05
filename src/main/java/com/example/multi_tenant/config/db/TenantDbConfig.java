@@ -28,7 +28,8 @@ public class TenantDbConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean tenantEntityManagerFactory(
             MultiTenantConnectionProvider connectionProvider,
-            CurrentTenantIdentifierResolver tenantResolver) {
+            CurrentTenantIdentifierResolver tenantResolver
+    ) {
 
         Map<String, Object> jpaProperties = new HashMap<>();
         jpaProperties.put("hibernate.show_sql", true);
@@ -51,7 +52,8 @@ public class TenantDbConfig {
 
     @Bean
     public PlatformTransactionManager tenantTransactionManager(
-            @Qualifier("tenantEntityManagerFactory") EntityManagerFactory emf) {
+            @Qualifier("tenantEntityManagerFactory") EntityManagerFactory emf
+    ) {
         return new JpaTransactionManager(emf);
     }
 }
