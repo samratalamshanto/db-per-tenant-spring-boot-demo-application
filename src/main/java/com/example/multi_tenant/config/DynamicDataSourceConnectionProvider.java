@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class DynamicDataSourceConnectionProvider implements MultiTenantConnectionProvider {
     private final DataSource defaultDataSource;
-    private final TenantDbProperties tenantDbProperties;
     private final TenantProviderService tenantProviderService;
 
     private final Map<String, DataSource> dataSourceCache = new ConcurrentHashMap<>();
@@ -35,8 +34,10 @@ public class DynamicDataSourceConnectionProvider implements MultiTenantConnectio
 
     @Override
     public Connection getConnection(Object tenantIdentifier) throws SQLException {
-        DataSource dataSource = dataSourceCache.computeIfAbsent(tenantIdentifier.toString(),
-                tenantProviderService::getOrCreate);
+        DataSource dataSource = dataSourceCache.computeIfAbsent(
+                tenantIdentifier.toString(),
+                tenantProviderService::getOrCreate
+        );
         return dataSource.getConnection();
     }
 
