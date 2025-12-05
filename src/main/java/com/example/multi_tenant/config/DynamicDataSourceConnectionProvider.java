@@ -1,9 +1,10 @@
 package com.example.multi_tenant.config;
 
-import com.example.multi_tenant.tenant.Tenant;
-import com.example.multi_tenant.tenant.TenantDbProperties;
-import com.example.multi_tenant.tenant.TenantRepository;
+import com.example.multi_tenant.config.properties.TenantDbProperties;
+import com.example.multi_tenant.master.tenant.Tenant;
+import com.example.multi_tenant.master.tenant.TenantProviderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.stereotype.Component;
@@ -14,12 +15,13 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DynamicDataSourceConnectionProvider implements MultiTenantConnectionProvider {
-    private final TenantRepository tenantRepository;
     private final DataSource defaultDataSource;
     private final TenantDbProperties tenantDbProperties;
+    private final TenantProviderService tenantProviderService;
 
     private final Map<String, DataSource> dataSourceCache = new ConcurrentHashMap<>();
 
@@ -35,11 +37,8 @@ public class DynamicDataSourceConnectionProvider implements MultiTenantConnectio
 
     @Override
     public Connection getConnection(Object tenantIdentifier) throws SQLException {
-        DataSource dataSource = dataSourceCache.computeIfAbsent(tenantIdentifier.toString(), key -> {
-            Tenant tenant = tenantRepository.findByTenantKey(key).orElse(null);
-            return buildDataSource(tenant);
-        });
-
+        DataSource dataSource = dataSourceCache.computeIfAbsent(tenantIdentifier.toString(),
+                tenantProviderService::getOrCreate);
         return dataSource.getConnection();
     }
 
@@ -56,10 +55,11 @@ public class DynamicDataSourceConnectionProvider implements MultiTenantConnectio
     private DataSource buildDataSource(Tenant tenant) {
 
         String dbUrl = String.format(
-                "jdbc:postgresql://%s:%d/%s",
+                "jdbc:postgresql://%s:%d/%s?currentSchema=%s",
                 tenantDbProperties.getHost(),
                 tenantDbProperties.getPort(),
-                tenant.getDbName()
+                tenant.getDbName(),
+                tenant.getSchemaName()
         );
 
 
@@ -73,6 +73,7 @@ public class DynamicDataSourceConnectionProvider implements MultiTenantConnectio
         // Test connection early
         try (Connection ignored = dataSource.getConnection()) {
             // OK
+            log.info("Db:{} connected", dbUrl);
         } catch (Exception e) {
             throw new RuntimeException("Failed to connect to tenant DB: " + tenant.getDbName(), e);
         }

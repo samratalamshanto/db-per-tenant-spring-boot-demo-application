@@ -1,4 +1,4 @@
-package com.example.multi_tenant.tenant;
+package com.example.multi_tenant.master.tenant;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

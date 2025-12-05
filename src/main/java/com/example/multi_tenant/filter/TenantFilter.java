@@ -33,7 +33,7 @@ public class TenantFilter extends OncePerRequestFilter {
             TenantIdentifierResolverImpl.setCurrentTenant(tenant);
             filterChain.doFilter(request, response);
         } finally {
-            TenantIdentifierResolverImpl.clearCurrentTenant();
+           // TenantIdentifierResolverImpl.clearCurrentTenant();
         }
     }
 

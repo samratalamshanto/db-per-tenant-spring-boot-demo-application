@@ -1,6 +1,9 @@
-package com.example.multi_tenant.tenant;
+package com.example.multi_tenant.master.tenant;
 
-import com.example.multi_tenant.config.DynamicDataSourceConnectionProvider;
+//import com.example.multi_tenant.config.DynamicDataSourceConnectionProvider;
+import com.example.multi_tenant.config.properties.TenantDbProperties;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.Database;
@@ -17,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -24,8 +29,9 @@ import java.sql.Statement;
 public class TenantProviderServiceImpl implements TenantProviderService {
     private final DataSource masterDataSource;
     private final TenantRepository tenantRepository;
-    private final DynamicDataSourceConnectionProvider connectionProvider;
+//    private final DynamicDataSourceConnectionProvider connectionProvider;
     private final TenantDbProperties tenantDbProperties;
+    private final Map<String, DataSource> cache = new ConcurrentHashMap<>();
 
     @Transactional
     @Override
@@ -34,7 +40,7 @@ public class TenantProviderServiceImpl implements TenantProviderService {
         createDatabase(req);
         runMigrations(req);
 
-        connectionProvider.clearCache(req.getTenantKey());
+//        connectionProvider.clearCache(req.getTenantKey());
         return Pair.of(true, "Success");
     }
 
@@ -124,10 +130,44 @@ public class TenantProviderServiceImpl implements TenantProviderService {
         Tenant tenant = new Tenant();
         tenant.setTenantKey(req.getTenantKey());
         tenant.setDbName(req.getDbName());
-        tenant.setSchemaName(req.getDbName());
+        tenant.setSchemaName(req.getSchemaName());
         tenant.setDbUserName(req.getDbUserName());
         tenant.setDbHashedPassword(req.getDbPassword());  //todo: need to hashed
 
         tenantRepository.save(tenant);
+    }
+
+
+    @Override
+    public DataSource getOrCreate(String tenantId) {
+        return cache.computeIfAbsent(tenantId, id -> {
+            Tenant t = tenantRepository.findByTenantKey(id)
+                    .orElseThrow(() -> new RuntimeException("Invalid tenant"));
+
+            String dbUrl = String.format(
+                    "jdbc:postgresql://%s:%d/%s?currentSchema=%s",
+                    tenantDbProperties.getHost(),
+                    tenantDbProperties.getPort(),
+                    t.getDbName(),
+                    t.getDbName()
+            );
+
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl(dbUrl);
+            config.setUsername(t.getDbUserName());
+            config.setPassword(t.getDbHashedPassword());
+            config.setMaximumPoolSize(5);
+
+            HikariDataSource ds = new HikariDataSource(config);
+
+            try (var _ = ds.getConnection()) {
+                log.info("Db:{} connected", dbUrl);
+            } catch (Exception e) {
+                ds.close(); // cleanup HikariDataSource if connection fails
+                throw new RuntimeException("Failed to connect to tenant DB: " + t.getDbName(), e);
+            }
+
+            return ds;
+        });
     }
 }
