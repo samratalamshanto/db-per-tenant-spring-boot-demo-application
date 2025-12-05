@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,6 +30,9 @@ public class TenantFilter extends OncePerRequestFilter {
             if (tenant == null || tenant.isEmpty()) {
                 tenant = DEFAULT_TENANT;
             }
+
+            MDC.put("tenantId", tenant);
+            MDC.put("tenantId", tenant);
 
             TenantIdentifierResolverImpl.setCurrentTenant(tenant);
             filterChain.doFilter(request, response);

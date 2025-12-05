@@ -31,6 +31,8 @@ public class TenantDbConfig {
             CurrentTenantIdentifierResolver tenantResolver) {
 
         Map<String, Object> jpaProperties = new HashMap<>();
+        jpaProperties.put("hibernate.show_sql", true);
+        jpaProperties.put("hibernate.format_sql", true);
         jpaProperties.put("hibernate.multiTenancy", "DATABASE");
         jpaProperties.put("hibernate.multi_tenant_connection_provider", connectionProvider);
         jpaProperties.put("hibernate.tenant_identifier_resolver", tenantResolver);

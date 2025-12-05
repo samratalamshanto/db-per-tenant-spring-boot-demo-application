@@ -52,37 +52,6 @@ public class DynamicDataSourceConnectionProvider implements MultiTenantConnectio
         return false;
     }
 
-    private DataSource buildDataSource(Tenant tenant) {
-
-        String dbUrl = String.format(
-                "jdbc:postgresql://%s:%d/%s?currentSchema=%s",
-                tenantDbProperties.getHost(),
-                tenantDbProperties.getPort(),
-                tenant.getDbName(),
-                tenant.getSchemaName()
-        );
-
-
-        var dataSource = DataSourceBuilder
-                .create()
-                .url(dbUrl)
-                .username(tenant.getDbName())
-                .password(tenant.getDbHashedPassword())  //todo: re-hashed passwords
-                .build();
-
-        // Test connection early
-        try (Connection ignored = dataSource.getConnection()) {
-            // OK
-            log.info("Db:{} connected", dbUrl);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to connect to tenant DB: " + tenant.getDbName(), e);
-        }
-
-        return dataSource;
-
-
-    }
-
     @Override
     public boolean isUnwrappableAs(Class<?> unwrapType) {
         return false;

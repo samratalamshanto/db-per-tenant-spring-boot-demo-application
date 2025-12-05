@@ -43,6 +43,8 @@ public class MasterDbConfig {
         Map<String, Object> jpaProperties = new HashMap<>();
 
         // camelCase to Db snakeCase issue
+        jpaProperties.put("hibernate.show_sql", true);
+        jpaProperties.put("hibernate.format_sql", true);
         jpaProperties.put("hibernate.physical_naming_strategy", new CamelCaseToSnakeCaseStrategy());
         jpaProperties.put("hibernate.implicit_naming_strategy", new ImplicitNamingStrategyJpaCompliantImpl());
 
