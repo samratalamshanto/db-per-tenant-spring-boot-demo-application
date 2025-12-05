@@ -32,12 +32,11 @@ public class TenantFilter extends OncePerRequestFilter {
             }
 
             MDC.put("tenantId", tenant);
-            MDC.put("tenantId", tenant);
 
             TenantIdentifierResolverImpl.setCurrentTenant(tenant);
             filterChain.doFilter(request, response);
         } finally {
-           // TenantIdentifierResolverImpl.clearCurrentTenant();
+            TenantIdentifierResolverImpl.clearCurrentTenant();
         }
     }
 
@@ -54,7 +53,6 @@ public class TenantFilter extends OncePerRequestFilter {
         }
 
         // 2. If no tenant header exists → do not run filter
-        // (your controller will decide what to do)
         String tenant = request.getHeader(TENANT_HEADER);
         return (tenant == null || tenant.isBlank());
     }
