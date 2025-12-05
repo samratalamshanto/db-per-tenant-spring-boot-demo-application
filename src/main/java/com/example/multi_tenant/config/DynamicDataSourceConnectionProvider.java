@@ -1,12 +1,10 @@
 package com.example.multi_tenant.config;
 
 import com.example.multi_tenant.config.properties.TenantDbProperties;
-import com.example.multi_tenant.master.tenant.Tenant;
 import com.example.multi_tenant.master.tenant.TenantProviderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
