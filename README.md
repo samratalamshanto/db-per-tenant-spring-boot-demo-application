@@ -2,7 +2,6 @@
 
 [![Java](https://img.shields.io/badge/Java-17+-blue)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-green)](https://spring.io/projects/spring-boot)
-[![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
 
 ---
 
