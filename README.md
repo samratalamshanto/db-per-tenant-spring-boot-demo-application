@@ -115,6 +115,35 @@ curl -X POST \
 }
 ```
 
+```bash
+# Get data based on tenantId
+curl --request GET \
+  --url http://localhost:8090/api/v1/test/all \
+  --header 'User-Agent: insomnia/12.1.0' \
+  --header '**X-Tenant-ID**: a0a06207-7cc2-4f3b-9336-1ebd60555d92' \
+  --cookie 'JSESSIONID=52A16B57F2737BCCFDFC5DC7FD3EDA9E'
+```
+
+### Sample Response
+
+```json
+[
+  {
+    "id": 1,
+    "description": "test_18_db description"
+  },
+  {
+    "id": 2,
+    "description": "test_18_db description2"
+  },
+  {
+    "id": 3,
+    "description": "test_18_db description3"
+  }
+]
+```
+
+
 ---
 
 ## Recommendations
