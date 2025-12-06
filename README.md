@@ -88,7 +88,7 @@ java -jar target/db-per-tenant-demo-0.0.1-SNAPSHOT.jar
 ---
 
 ## Quick Start Example
-
+1.
 ```bash
 # Create a new tenant via REST API
 curl -X POST \
@@ -114,7 +114,7 @@ curl -X POST \
   "dbPassword": "12345"
 }
 ```
-
+2.
 ```bash
 # Get data based on tenantId
 curl --request GET \
