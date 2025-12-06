@@ -1,4 +1,4 @@
-package com.example.multi_tenant.master.tenant;
+package com.example.multi_tenant.master.tenant.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TenantRequest {
-    @NotEmpty
-    private String tenantKey;
+public class CreateTenantRequest {
     @NotEmpty
     private String dbName;
     @NotEmpty
