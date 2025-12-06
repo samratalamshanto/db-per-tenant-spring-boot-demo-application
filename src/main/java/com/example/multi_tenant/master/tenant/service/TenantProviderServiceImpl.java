@@ -45,7 +45,7 @@ public class TenantProviderServiceImpl implements TenantProviderService {
     private void createTenantDb(CreateTenantRequest req) {
         createDatabase(req);
         createDbUser(req);
-        grantDbPriviledges(req);
+        grantDbPrivileges(req);
         createSchema(req);
         log.info("Privileges granted.");
     }
@@ -67,28 +67,23 @@ public class TenantProviderServiceImpl implements TenantProviderService {
                                 "SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?" +
                                 ")",
                         Boolean.class,
-                        req.getDbName()
+                        req.getSchemaName()
                 )
         );
 
         if (!schemaExists) {
             tenantJdbc.execute(
-                    "CREATE SCHEMA " + req.getDbName() +
+                    "CREATE SCHEMA " + req.getSchemaName() +
                             " AUTHORIZATION " + req.getDbUserName()
             );
-            log.info("Schema created: {}", req.getDbName());
+            log.info("Schema created: {}", req.getSchemaName());
         } else {
             log.info("Schema already exists — skipping");
         }
     }
 
-    private void grantDbPriviledges(CreateTenantRequest req) {
+    private void grantDbPrivileges(CreateTenantRequest req) {
         // 3) Grant privileges
-        masterDataSource.execute(
-                "GRANT ALL PRIVILEGES ON DATABASE " +
-                        req.getDbName() + " TO " + req.getDbUserName()
-        );
-
         masterDataSource.execute(
                 "GRANT ALL PRIVILEGES ON DATABASE " +
                         req.getDbName() + " TO " + req.getDbUserName()
@@ -148,7 +143,7 @@ public class TenantProviderServiceImpl implements TenantProviderService {
         try (Connection conn = ds.getConnection()) {
             Database database = DatabaseFactory.getInstance()
                     .findCorrectDatabaseImplementation(new JdbcConnection(conn));
-            database.setDefaultSchemaName(req.getDbName());
+            database.setDefaultSchemaName(req.getSchemaName());
 
             Liquibase liquibase = new Liquibase(
                     "db/changelog/db.changelog-tenant.yaml",
